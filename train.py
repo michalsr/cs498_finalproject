@@ -89,18 +89,22 @@ def test(model, test_loader, device, writer, config, epoch,test=False):
 def train(train_loader,model,optimizer,epoch,device,writer,config):
     print('\nEpoch: %d' % epoch)
 
-    train_loss = []
+    train_loss = 0
     train_accuracy = []
 
     for batch_idx, (inputs, targets) in tqdm(enumerate(train_loader)):
+        #print(inputs)
+        #print(targets)
         model.train()
-        inputs, targets = inputs.to(device), targets.to(device)
+        inputs.cuda()
+        targets.cuda()
+        #inputs, targets = inputs.to(device), targets.to(device)
 
         outputs = model(inputs)
 
         cross_entropy = nn.CrossEntropyLoss()
         cost = cross_entropy(outputs, targets)
-
+        print(cost.item())
         prec_train = accuracy(outputs, targets)
 
         optimizer.zero_grad()

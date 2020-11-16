@@ -23,6 +23,18 @@ from PIL import Image
 from skimage import io, transform
 import shutil
 
+def convert_labels(labels):
+    label_dict = {}
+    num = 0
+    final_labels = []
+    for i in labels:
+        if i not in label_dict:
+           label_dict[i] = num
+           final_labels.append(num)
+           num += 1
+        else:
+          final_labels.append(label_dict[i])
+    return final_labels
 def get_transform(dataset_name,data_type):
     if dataset_name == 'CIFAR10TRAIN':
         normalize = transforms.Normalize(mean=[x / 255.0 for x in [125.3, 123.0, 113.9]],std=[x / 255.0 for x in [63.0, 62.1, 66.7]])
@@ -75,6 +87,8 @@ class Airplanes():
             img_num, variant = line[0],line[1]
             data.append(img_num)
             labels.append(variant)
+        final_labels = convert_labels(labels)
+        labels = np.asarray(final_labels,dtype=np.int)
         return data, labels
     def __len__(self):
         return len(self.data)
@@ -87,7 +101,7 @@ class Airplanes():
             tr = transforms.Grayscale(num_output_channels=3)
             img = tr(img)
         img = self.transform(img)
-
+        #target = torch.from_numpy(target)
         return img, target
 
 
