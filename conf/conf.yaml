@@ -1,0 +1,26 @@
+#dataset options
+dataset_name: 'airplane'
+epochs: 5000
+batch_size: 128
+lr: 1e-2
+optimizer: 'sgd'
+momentum: 0.9
+resolution: 224
+nesterov_momentum: True
+weight_decay: 5e-4
+pretrained: True
+train: True
+self_train: False
+augment: True
+hydra:
+  run:
+    # to persuade hydra not to change folder
+    dir: ./
+
+#path to last checkpoint
+resume: ''
+name: 'airplanes'
+output_dir: outputs
+save_dir: ./{output_dir}/dataset_name={dataset_name}/pretrained={pretrained},self_train={self_train}/opt={optimizer},bs={batch_size},lr={lr}
+
+
