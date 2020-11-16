@@ -13,6 +13,7 @@ train: True
 self_train: False
 data_path: '/home/ubuntu/dataset_location/airplanes/fgvc-aircraft-2013b/data/images'
 num_classes: 102
+model_type: resnet50
 augment: True
 hydra:
   run:
