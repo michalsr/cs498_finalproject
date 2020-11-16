@@ -149,7 +149,7 @@ def get_datasets(config):
 def main(config):
     use_cuda = True
     dataset_classes = config.num_classes
-    model = load_models(config.model_type,dataset_classes,config.pretrained)
+    model = load_models.load_model(config.model_type,dataset_classes,config.pretrained)
     device = torch.device("cuda" if use_cuda else "cpu")
     log_dir = config.save_dir.format(**config)
     writer = SummaryWriter(log_dir=log_dir)
