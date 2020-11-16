@@ -136,6 +136,7 @@ def train(train_loader,model,optimizer,epoch,device,writer,config):
 
 def get_datasets(config):
     if config.dataset_name == 'airplane':
+        airplane = Airplanes()
         train_data = Airplanes('train',config.data_path)
         train_loader = torch.utils.data.DataLoader(train_data, batch_size=config.batch_size, shuffle=True)
         val_data = Airplanes('val',config.data_path)
