@@ -49,7 +49,7 @@ def accuracy(output,target):
 
 def get_optimizer(config,model):
     if config.optimizer == 'sgd':
-        optimizer_model = torch.optim.SGD(model.params(), config.lr,
+        optimizer_model = torch.optim.SGD(model.parameters(), config.lr,
                                           momentum=config.momentum, weight_decay=config.weight_decay)
     return optimizer_model
 
@@ -149,7 +149,7 @@ def get_datasets(config):
 def main(config):
     use_cuda = True
     dataset_classes = config.num_classes
-    model = load_models.load_model(config.model_type,dataset_classes,config.pretrained)
+    model, _ = load_models.load_model(config.model_type,dataset_classes,config.pretrained)
     device = torch.device("cuda" if use_cuda else "cpu")
     log_dir = config.save_dir.format(**config)
     writer = SummaryWriter(log_dir=log_dir)
