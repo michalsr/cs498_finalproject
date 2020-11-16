@@ -23,7 +23,34 @@ from PIL import Image
 from skimage import io, transform
 import shutil
 
+def get_transform(dataset_name,data_type):
+    if dataset_name == 'CIFAR10TRAIN':
+        normalize = transforms.Normalize(mean=[x / 255.0 for x in [125.3, 123.0, 113.9]],std=[x / 255.0 for x in [63.0, 62.1, 66.7]])
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Lambda(lambda x: F.pad(x.unsqueeze(0),
+                                              (4, 4, 4, 4), mode='reflect').squeeze()),
+            transforms.ToPILImage(),
+            transforms.RandomCrop(32),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ])
+    elif data_type != 'test':
+        normalize = transforms.Normalize(mean=[0.485,0.456,0.406],
+                                         std=[0.229, 0.224,0.225])
+        transform = transforms.Compose([
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
 
+        ])
+    elif data_type == 'test':
+        normalize = transforms.Normalize(mean=[0.485,0.456,0.406], std=[0.229, 0.224,0.225])
+        transform = transforms.Compose([transforms.CenterCrop(224),transforms.ToTensor(),normalize, ])
+
+    return  transform
 
 class Airplanes(data.dataset):
     def __init__(self,data_type,data_path):
