@@ -52,7 +52,7 @@ def get_transform(dataset_name,data_type):
 
     return  transform
 
-class Airplanes(data.dataset):
+class Airplanes():
     def __init__(self,data_type,data_path):
         super(Airplanes,self).__init__()
         self.data_path = data_path
@@ -81,7 +81,7 @@ class Airplanes(data.dataset):
 
     def __getitem__(self,idx):
         img, target = self.data[idx], self.label[idx]
-        img = Image.open(self.data_path+'/'+self.data_type+'/'+img+'.jpg')
+        img = Image.open(self.data_path+'/'+img+'.jpg')
 
         if img.mode == 'L':
             tr = transforms.Grayscale(num_output_channels=3)
