@@ -153,7 +153,7 @@ def main(config):
     device = torch.device("cuda" if use_cuda else "cpu")
     log_dir = config.save_dir.format(**config)
     writer = SummaryWriter(log_dir=log_dir)
-    train_loader, val_loader, test_loader = get_datasets()
+    train_loader, val_loader, test_loader = get_datasets(config)
 
     optim = get_optimizer(config,model)
     early_stopping = EarlyStopping()
