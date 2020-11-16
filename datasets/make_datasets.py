@@ -58,7 +58,7 @@ class Airplanes(data.dataset):
         self.data_path = data_path
         self.type = data_type
         self.transforms = self.get_transforms('Airplanes',self.type)
-        self.data, self.labels = load_images(self.type)
+        self.data, self.labels = self.load_images(self.type)
 
     def load_images(self,data_type):
         if data_type == 'train':

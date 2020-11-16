@@ -145,7 +145,7 @@ def get_datasets(config):
     return train_loader, val_loader, test_loader
 
 
-@hydra.main(config_name='conf/conf_meta_y.yaml')
+@hydra.main(config_name='conf/conf.yaml')
 def main(config):
     use_cuda = True
     dataset_classes = config.num_classes
