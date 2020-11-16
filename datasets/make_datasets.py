@@ -80,7 +80,7 @@ class Airplanes():
         return len(self.data)
 
     def __getitem__(self,idx):
-        img, target = self.data[idx], self.label[idx]
+        img, target = self.data[idx], self.labels[idx]
         img = Image.open(self.data_path+'/'+img+'.jpg')
 
         if img.mode == 'L':
