@@ -158,7 +158,7 @@ def main(config):
     optim = get_optimizer(config,model)
     early_stopping = EarlyStopping()
     if config.train:
-        for epoch in config.epochs:
+        for epoch in range(config.epochs):
             train(train_loader,model,optim,epoch,device,writer,config)
 
             val_acc = test(model, test_loader, device, writer, config, epoch, test=False)
