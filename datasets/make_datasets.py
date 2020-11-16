@@ -57,7 +57,7 @@ class Airplanes():
         super(Airplanes,self).__init__()
         self.data_path = data_path
         self.type = data_type
-        self.transforms = self.get_transforms('Airplanes',self.type)
+        self.transforms = get_transform('Airplanes',self.type)
         self.data, self.labels = self.load_images(self.type)
 
     def load_images(self,data_type):
