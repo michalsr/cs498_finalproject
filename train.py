@@ -95,16 +95,16 @@ def train(train_loader,model,optimizer,epoch,device,writer,config):
     for batch_idx, (inputs, targets) in tqdm(enumerate(train_loader)):
         #print(inputs)
         #print(targets)
+        #model.cuda()
         model.train()
-        inputs.cuda()
-        targets.cuda()
-        #inputs, targets = inputs.to(device), targets.to(device)
+        # inputs.cuda()
+        # targets.cuda()
+        inputs, targets = inputs.to(device), targets.to(device)
 
         outputs = model(inputs)
 
         cross_entropy = nn.CrossEntropyLoss()
         cost = cross_entropy(outputs, targets)
-        print(cost.item())
         prec_train = accuracy(outputs, targets)
 
         optimizer.zero_grad()
@@ -116,7 +116,7 @@ def train(train_loader,model,optimizer,epoch,device,writer,config):
 
 
 
-        if (batch_idx + 1) % 100 == 0:
+        if (batch_idx + 1) % 50 == 0:
             tqdm.write('Epoch: [%d/%d]\t'
                        'Iters: [%d/%d]\t'
                        'Loss: %.4f\t'
@@ -128,7 +128,7 @@ def train(train_loader,model,optimizer,epoch,device,writer,config):
                            prec_train))
             writer.add_scalar('Train Loss', train_loss / (batch_idx + 1), (batch_idx + 1) * (epoch + 1))
             writer.add_scalar('Train Accuracy', np.mean(train_accuracy), (batch_idx + 1) * (epoch + 1))
-        if (batch_idx+1) %1000:
+        if (batch_idx+1) %50 == 0:
 
             model_checkpoint = {'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict()}
             model_save_dir = config.save_dir.format(**config) + '/model/'
@@ -141,11 +141,23 @@ def train(train_loader,model,optimizer,epoch,device,writer,config):
 def get_datasets(config):
     if config.dataset_name == 'airplane':
         train_data =Airplanes('train',config.data_path)
-        train_loader = torch.utils.data.DataLoader(train_data, batch_size=config.batch_size, shuffle=True)
+
         val_data = Airplanes('val',config.data_path)
-        val_loader = torch.utils.data.DataLoader(val_data,batch_size=config.batch_size,shuffle=False)
+
         test_data = Airplanes('test',config.data_path)
-        test_loader = torch.utils.data.DataLoader(test_data,batch_size=config.batch_size,shuffle=False)
+
+    elif config.dataset_name == 'cifar10':
+        train_data = CIFAR10TrainVal('train')
+        val_data = CIFAR10TrainVal('val')
+        test_data = CIFAR10Test('test')
+    elif config.dataset_name == 'pacs':
+        train_data = PACS('train')
+        val_data = PACS('val')
+        test_data = PACS('test')
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=config.batch_size, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=config.batch_size, shuffle=False)
+    test_loader = torch.utils.data.DataLoader(test_data, batch_size=config.batch_size, shuffle=False)
+
     return train_loader, val_loader, test_loader
 
 
@@ -159,8 +171,19 @@ def main(config):
     writer = SummaryWriter(log_dir=log_dir)
     train_loader, val_loader, test_loader = get_datasets(config)
 
-    optim = get_optimizer(config,model)
+    #optim = get_optimizer(config,model)
+    optim = torch.optim.SGD(model.parameters(),config.lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim,5)
     early_stopping = EarlyStopping()
+    model.cuda()
+    initial = test(model,test_loader,device,writer,config,1,True)
+    # / shared / rsaas / michal5 / classes / 498
+    # _dl / cs498_finalproject / outputs / dataset_name = airplane / pretrained = True, self_train = False / opt = sgd, bs = 64, lr = 0.01 / model / acc:0.71875.pt
+    #model = load_model('/shared/rsaas/michal5/classes/498_dl/cs498_finalproject/outputs/dataset_name=airplane/pretrained=True,self_train=True/opt=sgd,bs=64,lr=0.01'+'/model/'+'acc:0.7185.pt',model)
+    epoch_reached = 0
+    #model = load_model(config.save_dir.format(**config)+'/model/'+'acc:0.71875.pt',model)
+    #test_acc = test(model,test_loader,device,writer,config,1,True)
+
     if config.train:
         for epoch in range(config.epochs):
             train(train_loader,model,optim,epoch,device,writer,config)
@@ -168,8 +191,10 @@ def main(config):
             val_acc = test(model, test_loader, device, writer, config, epoch, test=False)
             early_stopping(val_acc)
             if early_stopping.early_stop:
+                epoch_reached = epoch
                 break
-    test_acc = test(model, test_loader, device, writer, config, config.epoch, test=True)
+            scheduler.step()
+    test_acc = test(model, test_loader, device, writer, config, epoch_reached, test=True)
     fname = os.path.join(config.save_dir.format(**config), 'best_accuracy' + '.json')
     os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, 'w') as f:
@@ -177,6 +202,11 @@ def main(config):
         tqdm.write(f'Saved accuracy results to {fname}')
     print('test accuracy:', test_acc)
 
+def load_model(model_path,model):
+    ckpt = torch.load(model_path)
+    model.load_state_dict(ckpt['state_dict'])
+
+    return model
 
 
 if __name__ == '__main__':
