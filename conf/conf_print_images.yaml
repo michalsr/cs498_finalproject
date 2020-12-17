@@ -1,0 +1,24 @@
+labelled_dataset: 'airplane'
+teacher_epochs: 100
+student_epochs: 100
+airplane_path: '/data/common/fgvc-aircraft-2013b/data/images'
+batch_size: 128
+teacher_lr: 1e-1
+student_lr: 1e-1
+optimizer: 'adam'
+weight_decay: 5e-4
+pretrained: False
+finetune_lr: 1e-2
+finetune_epochs: 50
+num_classes: 102
+self_train: True
+hydra:
+  run:
+    # to persuade hydra not to change folder
+    dir: ./
+name: 'self-training'
+output_dir: outputs
+save_dir: ./{output_dir}/experiment_type={name}/dataset_name={labelled_dataset}/pretrained={pretrained},self_train={self_train}/opt={optimizer},bs={batch_size},lr={teacher_lr},{student_lr},{finetune_lr}
+
+
+
